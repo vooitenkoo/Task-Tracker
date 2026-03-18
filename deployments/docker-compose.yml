@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: gosystem
+      POSTGRES_PASSWORD: gosystem
+      POSTGRES_DB: gosystem
+    ports:
+      - "5432:5432"
+    volumes:
+      - gosystem_pg:/var/lib/postgresql/data
+
+volumes:
+  gosystem_pg:

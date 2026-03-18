@@ -1,0 +1,592 @@
+openapi: 3.0.3
+info:
+  title: GoSystem Tasks API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Service health
+      responses:
+        "200":
+          description: OK
+  /tasks:
+    post:
+      summary: Create task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                priority:
+                  type: integer
+                due_date:
+                  type: string
+                  format: date-time
+                project_id:
+                  type: string
+                  format: uuid
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List tasks
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: priority
+          schema:
+            type: integer
+        - in: query
+          name: project_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: tag
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}:
+    get:
+      summary: Get task
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+    patch:
+      summary: Update task
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                priority:
+                  type: integer
+                due_date:
+                  type: string
+                  format: date-time
+                project_id:
+                  type: string
+                  format: uuid
+                tags:
+                  type: array
+                  items:
+                    type: string
+                clear_due_date:
+                  type: boolean
+                clear_project_id:
+                  type: boolean
+      responses:
+        "200":
+          description: OK
+    delete:
+      summary: Delete task
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/status:
+    patch:
+      summary: Update task status
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [open, in_progress, done]
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/comments:
+    post:
+      summary: Add comment
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                author:
+                  type: string
+                body:
+                  type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List comments
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /projects:
+    post:
+      summary: Create project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List projects
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /projects/{id}:
+    get:
+      summary: Get project
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+  /stats:
+    get:
+      summary: Task stats
+      responses:
+        "200":
+          description: OK
+  /tasks/overdue:
+    get:
+      summary: List overdue tasks
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /tasks/due-soon:
+    get:
+      summary: List tasks due soon
+      parameters:
+        - in: query
+          name: days
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /tasks/bulk/status:
+    post:
+      summary: Bulk update status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, status]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                status:
+                  type: string
+                  enum: [open, in_progress, done]
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/assignees:
+    post:
+      summary: Add assignee
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List assignees
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/assignees/{user_id}:
+    delete:
+      summary: Remove assignee
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: user_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/checklist:
+    post:
+      summary: Add checklist item
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List checklist items
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/checklist/{item_id}:
+    patch:
+      summary: Update checklist item
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: item_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                done:
+                  type: boolean
+      responses:
+        "200":
+          description: OK
+    delete:
+      summary: Delete checklist item
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: path
+          name: item_id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /tasks/{id}/activity:
+    get:
+      summary: Task activity
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /projects/{id}/members:
+    post:
+      summary: Add project member
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: string
+                  format: uuid
+                role:
+                  type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List project members
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /projects/{id}/stats:
+    get:
+      summary: Project stats
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+  /users:
+    post:
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+      responses:
+        "201":
+          description: Created
+    get:
+      summary: List users
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+  /users/{id}:
+    get:
+      summary: Get user
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+  /tags:
+    get:
+      summary: List tags
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
